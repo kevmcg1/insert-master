@@ -1,0 +1,921 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Insert Master</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet" />
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --bg-top:    #0d0d0f;
+            --bg-bottom: #080810;
+            --surface:   #111114;
+            --surface2:  #0e0e11;
+            --border:    #1e1e24;
+            --border2:   #2a2a34;
+            --text:      #e8e8e8;
+            --muted:     #8a8a9a;
+            --accent:    #c8ff00;
+            --card-hover:#17171c;
+            --tag-bg:    #1a1a22;
+            --radius:    10px;
+        }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: linear-gradient(160deg, var(--bg-top) 0%, var(--bg-bottom) 100%);
+            background-attachment: fixed;
+            color: var(--text);
+            min-height: 100vh;
+            padding-bottom: 4rem;
+        }
+
+        /* ── HEADER ── */
+        header {
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            padding: 2.5rem 1.5rem 3rem;
+            text-align: center;
+            animation: fadeUp 0.7s ease both;
+        }
+        .header-inner { max-width: 860px; margin: 0 auto; }
+
+        .header-label {
+            font-size: 0.6rem; letter-spacing: 0.18em;
+            text-transform: uppercase; color: var(--muted);
+            margin-bottom: 0.7rem;
+        }
+
+        header h1 {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: clamp(2.4rem, 6vw, 3.8rem);
+            font-weight: 400;
+            letter-spacing: 0.06em;
+            line-height: 0.88;
+            color: var(--text);
+        }
+        header h1 span {
+            display: block;
+            color: transparent;
+            -webkit-text-stroke: 1.5px var(--text);
+        }
+        .header-underline {
+            width: 100%; max-width: 300px;
+            height: 1.5px;
+            background: linear-gradient(90deg, var(--text) 0%, transparent 100%);
+            margin: 0.7rem auto 0;
+            opacity: 0.4;
+        }
+        .header-sub {
+            margin-top: 0.8rem;
+            font-size: 0.72rem; font-weight: 300;
+            letter-spacing: 0.12em; text-transform: uppercase;
+            color: var(--muted);
+        }
+
+        /* ── MAIN WRAP ── */
+        main {
+            max-width: 860px;
+            margin: -1.5rem auto 0;
+            padding: 0 1.2rem;
+            animation: fadeUp 0.7s 0.1s ease both;
+        }
+
+        /* ── TABS ── */
+        .tab-bar {
+            display: flex;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius) var(--radius) 0 0;
+            overflow: hidden;
+        }
+        .tab-bar button {
+            flex: 1;
+            padding: 1rem 0.5rem;
+            background: transparent;
+            border: none;
+            border-bottom: 2px solid transparent;
+            color: var(--muted);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.62rem; font-weight: 500;
+            letter-spacing: 0.16em; text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .tab-bar button:hover { color: var(--text); background: var(--card-hover); }
+        .tab-active {
+            border-bottom-color: var(--accent) !important;
+            color: var(--accent) !important;
+            background: var(--card-hover) !important;
+        }
+
+        /* ── PANEL ── */
+        .panel {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-top: none;
+            border-radius: 0 0 var(--radius) var(--radius);
+            padding: 2rem;
+        }
+
+        /* ── NOTICE BOX ── */
+        .notice {
+            background: var(--tag-bg);
+            border: 1px solid var(--border2);
+            border-left: 3px solid var(--accent);
+            border-radius: var(--radius);
+            padding: 1rem 1.2rem;
+            margin-bottom: 1.8rem;
+            display: flex; gap: 0.8rem; align-items: flex-start;
+        }
+        .notice-icon { color: var(--accent); font-size: 0.9rem; flex-shrink: 0; margin-top: 1px; }
+        .notice p {
+            font-size: 0.72rem; font-weight: 300; line-height: 1.7;
+            color: #c8c8d8;
+        }
+
+        /* ── DECODER INPUT ── */
+        .input-label {
+            display: block;
+            font-size: 0.58rem; font-weight: 500;
+            letter-spacing: 0.18em; text-transform: uppercase;
+            color: var(--muted); margin-bottom: 0.6rem;
+        }
+        .decoder-input {
+            width: 100%;
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1rem 1.2rem;
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 2rem; letter-spacing: 0.12em;
+            color: var(--text);
+            outline: none;
+            text-transform: uppercase;
+            transition: border-color 0.2s;
+        }
+        .decoder-input:focus { border-color: var(--accent); }
+        .decoder-input::placeholder { color: var(--border2); }
+
+        .sample-row {
+            margin-top: 1rem;
+            display: flex; flex-wrap: wrap; gap: 1rem; align-items: center;
+        }
+        .sample-group { display: flex; align-items: center; gap: 0.5rem; }
+        .sample-tag {
+            font-size: 0.55rem; font-weight: 500;
+            letter-spacing: 0.14em; text-transform: uppercase;
+            color: var(--muted);
+        }
+        .sample-btn {
+            background: transparent; border: none;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.72rem; font-weight: 500;
+            color: var(--accent); cursor: pointer;
+            padding: 0; transition: opacity 0.2s;
+            text-decoration: underline; text-underline-offset: 3px;
+        }
+        .sample-btn:hover { opacity: 0.7; }
+
+        /* ── SECTION HEADING ── */
+        .section-label {
+            font-size: 0.6rem; letter-spacing: 0.16em;
+            text-transform: uppercase; color: var(--muted);
+            margin-bottom: 1rem;
+            display: flex; align-items: center; gap: 8px;
+        }
+        .section-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+        /* ── DECODE RESULTS ── */
+        .results-header {
+            display: flex; justify-content: space-between; align-items: center;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 0.8rem; margin-bottom: 1.2rem;
+        }
+        .results-title {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1.2rem; letter-spacing: 0.08em; color: var(--text);
+        }
+        .standard-badge {
+            font-size: 0.58rem; font-weight: 500;
+            letter-spacing: 0.1em; text-transform: uppercase;
+            padding: 3px 10px; border-radius: 4px;
+        }
+        .badge-iso  { background: rgba(200,255,0,0.1); border: 1px solid rgba(200,255,0,0.4); color: var(--accent); }
+        .badge-ansi { background: rgba(232,232,232,0.08); border: 1px solid rgba(232,232,232,0.25); color: var(--text); }
+        .badge-err  { background: rgba(255,80,80,0.1); border: 1px solid rgba(255,80,80,0.4); color: #ff8080; }
+
+        .decode-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+        @media (max-width: 580px) { .decode-grid { grid-template-columns: 1fr; } }
+
+        .decode-card {
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1rem 1.2rem;
+            display: flex; align-items: center; gap: 1rem;
+            position: relative; overflow: hidden;
+            transition: background 0.2s;
+        }
+        .decode-card::after {
+            content: '';
+            position: absolute; inset: 0;
+            background: linear-gradient(90deg, rgba(200,255,0,0.04) 0%, transparent 60%);
+            opacity: 0; transition: opacity 0.3s; pointer-events: none;
+        }
+        .decode-card:hover { background: var(--card-hover); }
+        .decode-card:hover::after { opacity: 1; }
+
+        .decode-bar {
+            width: 3px; height: 2rem; border-radius: 2px;
+            flex-shrink: 0; opacity: 0.8;
+        }
+        .decode-label {
+            display: block; font-size: 0.55rem; font-weight: 500;
+            letter-spacing: 0.14em; text-transform: uppercase;
+            color: var(--muted); margin-bottom: 2px;
+        }
+        .decode-val {
+            font-size: 0.85rem; font-weight: 500; color: var(--text);
+        }
+        .decode-empty {
+            grid-column: 1 / -1;
+            text-align: center; padding: 3rem;
+            font-size: 0.75rem; color: var(--muted); font-style: italic;
+        }
+
+        /* ── TABLES ── */
+        .table-wrapper {
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            overflow: hidden;
+            margin-bottom: 2rem;
+            background: var(--surface2);
+        }
+        table { width: 100%; border-collapse: separate; border-spacing: 0; text-align: left; }
+        thead th {
+            font-size: 0.58rem; font-weight: 500;
+            letter-spacing: 0.14em; text-transform: uppercase;
+            color: var(--muted); padding: 0.8rem 1.1rem;
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            border-right: 1px solid var(--border);
+        }
+        thead th:last-child { border-right: none; }
+        tbody td {
+            padding: 0.75rem 1.1rem;
+            border-bottom: 1px solid var(--border);
+            border-right: 1px solid var(--border);
+            font-size: 0.82rem; color: #c8c8d8;
+            background: var(--surface2);
+            transition: background 0.15s;
+            font-weight: 300;
+        }
+        tbody td:last-child { border-right: none; }
+        tbody tr:last-child td { border-bottom: none; }
+        tbody tr:hover td { background: var(--card-hover); }
+        .td-code {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1.1rem; letter-spacing: 0.06em;
+            color: var(--accent) !important;
+            background: var(--surface) !important;
+            font-weight: 400;
+        }
+        .td-mono { font-family: 'DM Sans', sans-serif; font-weight: 500; color: var(--muted); font-size: 0.78rem; }
+
+        /* info layout */
+        .info-topbar {
+            display: flex; justify-content: space-between; align-items: flex-start;
+            background: var(--surface2); border: 1px solid var(--border);
+            border-radius: var(--radius); padding: 1.4rem 1.6rem;
+            margin-bottom: 2rem; gap: 1rem; flex-wrap: wrap;
+        }
+        .info-topbar p { font-size: 0.78rem; font-weight: 300; color: var(--muted); margin-top: 4px; }
+        .info-topbar h3 { font-size: 0.9rem; font-weight: 500; color: var(--text); }
+
+        .unit-toggle {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            color: var(--text);
+            padding: 0.6rem 1.1rem;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.65rem; font-weight: 500;
+            letter-spacing: 0.1em; text-transform: uppercase;
+            cursor: pointer; transition: all 0.2s; white-space: nowrap;
+            flex-shrink: 0;
+        }
+        .unit-toggle:hover { border-color: var(--accent); color: var(--accent); }
+
+        .info-section { margin-bottom: 2.5rem; }
+        .dim-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; }
+        @media (max-width: 600px) { .dim-grid { grid-template-columns: 1fr; } }
+        .dim-col-label {
+            font-size: 0.58rem; font-weight: 500;
+            letter-spacing: 0.14em; text-transform: uppercase;
+            color: var(--muted); margin-bottom: 0.6rem; padding-left: 2px;
+        }
+
+        /* ── BUILDER ── */
+        .builder-display {
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-left: 3px solid var(--accent);
+            border-radius: var(--radius);
+            padding: 2rem;
+            margin-bottom: 2.5rem;
+            text-align: center;
+            position: relative; overflow: hidden;
+        }
+        .builder-display::after {
+            content: '';
+            position: absolute; inset: 0;
+            background: linear-gradient(135deg, rgba(200,255,0,0.04) 0%, transparent 60%);
+            pointer-events: none;
+        }
+        .builder-display-label {
+            font-size: 0.58rem; font-weight: 500;
+            letter-spacing: 0.18em; text-transform: uppercase;
+            color: var(--muted); margin-bottom: 0.8rem; display: block;
+        }
+        #builder-output {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: clamp(2.4rem, 8vw, 4rem);
+            letter-spacing: 0.12em; color: var(--accent);
+            line-height: 1; word-break: break-all;
+        }
+
+        .builder-section { margin-bottom: 2.2rem; }
+        .builder-section-title {
+            font-size: 0.58rem; font-weight: 500;
+            letter-spacing: 0.16em; text-transform: uppercase;
+            color: var(--muted); margin-bottom: 0.9rem;
+            display: flex; align-items: center; gap: 8px;
+        }
+        .builder-section-title::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+        /* builder btn row */
+        .btn-row {
+            display: flex; overflow-x: auto; gap: 6px; padding-bottom: 4px;
+        }
+        .btn-row::-webkit-scrollbar { height: 2px; }
+        .btn-row::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+        .build-btn {
+            min-width: 46px; height: 46px; flex-shrink: 0;
+            border-radius: var(--radius);
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1.2rem; letter-spacing: 0.06em;
+            border: 1px solid var(--border);
+            background: var(--surface2);
+            color: var(--muted);
+            cursor: pointer; transition: all 0.2s;
+        }
+        .build-btn:hover { border-color: var(--border2); color: var(--text); }
+        .build-btn-active {
+            background: transparent;
+            border-color: var(--accent) !important;
+            color: var(--accent) !important;
+            box-shadow: inset 0 0 0 1px rgba(200,255,0,0.15);
+        }
+
+        .desc-box {
+            margin-top: 0.7rem;
+            font-size: 0.78rem; font-weight: 300; color: #c8c8d8;
+            background: var(--tag-bg);
+            border: 1px solid var(--border);
+            border-left: 2px solid var(--accent);
+            border-radius: var(--radius);
+            padding: 0.7rem 1rem;
+            min-height: 2.4rem;
+            line-height: 1.6;
+        }
+
+        /* builder dim selects */
+        .dim-select-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; }
+        @media (max-width: 560px) { .dim-select-grid { grid-template-columns: 1fr; } }
+
+        .dim-select-card {
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1.1rem;
+        }
+        .dim-select-label {
+            display: block;
+            font-size: 0.58rem; font-weight: 500;
+            letter-spacing: 0.14em; text-transform: uppercase;
+            color: var(--muted); margin-bottom: 0.6rem;
+        }
+        .dim-select {
+            width: 100%;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: calc(var(--radius) - 2px);
+            color: var(--text);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.82rem; font-weight: 500;
+            padding: 0.6rem 0.8rem;
+            outline: none; cursor: pointer;
+            transition: border-color 0.2s;
+        }
+        .dim-select:focus { border-color: var(--accent); }
+
+        .hidden { display: none !important; }
+
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(14px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            *, *::after { animation: none !important; transition: none !important; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="header-inner">
+            <div class="header-label">— ISO & ANSI Machining Standard Reference</div>
+            <h1>Insert<br><span>Master</span></h1>
+            <div class="header-underline"></div>
+            <div class="header-sub">Decoder · Reference · Builder</div>
+        </div>
+    </header>
+
+    <main>
+
+        <!-- TABS -->
+        <div class="tab-bar">
+            <button onclick="switchMode('decoder')" id="tab-decoder" class="tab-active">Decoder</button>
+            <button onclick="switchMode('info')"    id="tab-info">Reference</button>
+            <button onclick="switchMode('builder')" id="tab-builder">Builder</button>
+        </div>
+
+        <!-- ── DECODER ── -->
+        <div id="mode-decoder" class="panel">
+            <div class="notice">
+                <span class="notice-icon">◈</span>
+                <p>Supports standard 7- and 9-character Turning insert codes (ISO and ANSI). Decodes geometry, tolerance, edge condition, hand, and nominal sizing per global machining standards.</p>
+            </div>
+
+            <div style="margin-bottom: 1.6rem;">
+                <label class="input-label" for="decoder-input">Input Specification Code</label>
+                <input type="text" id="decoder-input" placeholder="e.g. CNMG432 or CNMG120408RL"
+                       oninput="decode()" class="decoder-input">
+
+                <div class="sample-row">
+                    <div class="sample-group">
+                        <span class="sample-tag">ANSI:</span>
+                        <button onclick="loadSample('CNMG432')"  class="sample-btn">CNMG432</button>
+                        <button onclick="loadSample('DNMG431')"  class="sample-btn">DNMG431</button>
+                    </div>
+                    <div class="sample-group">
+                        <span class="sample-tag">ISO:</span>
+                        <button onclick="loadSample('CNMG120408')"   class="sample-btn">CNMG120408</button>
+                        <button onclick="loadSample('TNMG160404ER')" class="sample-btn">TNMG160404ER</button>
+                        <button onclick="loadSample('VNMG160408EL')" class="sample-btn">VNMG160408EL</button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="decoder-results" class="hidden">
+                <div class="results-header">
+                    <span class="results-title">Breakdown</span>
+                    <span id="standard-badge" class="standard-badge"></span>
+                </div>
+                <div id="decode-grid" class="decode-grid"></div>
+            </div>
+        </div>
+
+        <!-- ── INFO ── -->
+        <div id="mode-info" class="panel hidden">
+
+            <div class="info-topbar">
+                <div>
+                    <h3>Standardized Reference Tables</h3>
+                    <p>Industry standard dimensions and geometry codes.</p>
+                </div>
+                <button onclick="toggleUnits()" id="unit-toggle-btn" class="unit-toggle">Units: ANSI (Inch)</button>
+            </div>
+
+            <div class="info-section">
+                <div class="section-label">1 — Shape Geometry</div>
+                <div class="table-wrapper"><table id="table-shape"><thead><tr><th style="width:80px">Code</th><th>Description</th><th>Point Angle</th></tr></thead><tbody></tbody></table></div>
+            </div>
+            <div class="info-section">
+                <div class="section-label">2 — Relief Angle</div>
+                <div class="table-wrapper"><table id="table-relief"><thead><tr><th style="width:80px">Code</th><th>Angle</th><th>Notes</th></tr></thead><tbody></tbody></table></div>
+            </div>
+            <div class="info-section">
+                <div class="section-label">3 — Tolerance Class</div>
+                <div class="table-wrapper"><table id="table-tolerance"><thead><tr><th style="width:70px">Code</th><th>I.C. Tol.</th><th>Thickness Tol.</th><th>Description</th></tr></thead><tbody></tbody></table></div>
+            </div>
+            <div class="info-section">
+                <div class="section-label">4 — Insert Type / Fixing</div>
+                <div class="table-wrapper"><table id="table-type"><thead><tr><th style="width:80px">Code</th><th>Features</th></tr></thead><tbody></tbody></table></div>
+            </div>
+            <div class="info-section">
+                <div class="section-label">6 — Cutting Edge Condition</div>
+                <div class="table-wrapper"><table id="table-edge"><thead><tr><th style="width:80px">Code</th><th>Description</th></tr></thead><tbody></tbody></table></div>
+            </div>
+            <div class="info-section">
+                <div class="section-label">7 — Cutting Direction (Hand)</div>
+                <div class="table-wrapper"><table id="table-hand"><thead><tr><th style="width:80px">Code</th><th>Description</th></tr></thead><tbody></tbody></table></div>
+            </div>
+            <div class="info-section">
+                <div class="section-label">5 — Dimension Mappings</div>
+                <div class="dim-grid">
+                    <div>
+                        <div class="dim-col-label">Size (I.C.)</div>
+                        <div class="table-wrapper"><table id="table-size"><thead><tr><th>ISO</th><th>ANSI</th><th class="unit-label" style="text-align:right">Value</th></tr></thead><tbody></tbody></table></div>
+                    </div>
+                    <div>
+                        <div class="dim-col-label">Thickness</div>
+                        <div class="table-wrapper"><table id="table-thick"><thead><tr><th>ISO</th><th>ANSI</th><th class="unit-label" style="text-align:right">Value</th></tr></thead><tbody></tbody></table></div>
+                    </div>
+                    <div>
+                        <div class="dim-col-label">Nose Radius (ISO)</div>
+                        <div class="table-wrapper"><table id="table-radius"><thead><tr><th>Code</th><th class="unit-label" style="text-align:right">Value</th></tr></thead><tbody></tbody></table></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── BUILDER ── -->
+        <div id="mode-builder" class="panel hidden">
+
+            <div class="builder-display">
+                <span class="builder-display-label">— Active Specification Code</span>
+                <div id="builder-output">CNMG120408EN</div>
+            </div>
+
+            <div class="builder-section">
+                <div class="builder-section-title">1 — Shape Geometry</div>
+                <div class="btn-row" id="build-shape"></div>
+                <div class="desc-box" id="desc-shape"></div>
+            </div>
+            <div class="builder-section">
+                <div class="builder-section-title">2 — Relief Angle</div>
+                <div class="btn-row" id="build-relief"></div>
+                <div class="desc-box" id="desc-relief"></div>
+            </div>
+            <div class="builder-section">
+                <div class="builder-section-title">3 — Tolerance Class</div>
+                <div class="btn-row" id="build-tolerance"></div>
+                <div class="desc-box" id="desc-tolerance"></div>
+            </div>
+            <div class="builder-section">
+                <div class="builder-section-title">4 — Insert Type / Fixing</div>
+                <div class="btn-row" id="build-hole"></div>
+                <div class="desc-box" id="desc-hole"></div>
+            </div>
+
+            <div class="builder-section">
+                <div class="builder-section-title">5 — Nominal Dimensions (ISO)</div>
+                <div class="dim-select-grid">
+                    <div class="dim-select-card">
+                        <label class="dim-select-label">Size (I.C.)</label>
+                        <select id="build-size" class="dim-select" onchange="updateState('size', this.value)"></select>
+                    </div>
+                    <div class="dim-select-card">
+                        <label class="dim-select-label">Thickness</label>
+                        <select id="build-thickness" class="dim-select" onchange="updateState('thick', this.value)"></select>
+                    </div>
+                    <div class="dim-select-card">
+                        <label class="dim-select-label">Nose Radius</label>
+                        <select id="build-radius" class="dim-select" onchange="updateState('rad', this.value)"></select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="builder-section">
+                <div class="builder-section-title">6 — Cutting Edge Condition</div>
+                <div class="btn-row" id="build-edge"></div>
+                <div class="desc-box" id="desc-edge"></div>
+            </div>
+            <div class="builder-section">
+                <div class="builder-section-title">7 — Cutting Direction (Hand)</div>
+                <div class="btn-row" id="build-hand"></div>
+                <div class="desc-box" id="desc-hand"></div>
+            </div>
+        </div>
+
+    </main>
+
+    <script>
+        const DATA = {
+            shape: {
+                'C': { desc: '80° Rhombic', angle: '80°' },
+                'D': { desc: '55° Rhombic', angle: '55°' },
+                'E': { desc: '75° Rhombic', angle: '75°' },
+                'H': { desc: 'Hexagonal', angle: '120°' },
+                'K': { desc: '55° Parallelogram', angle: '55°' },
+                'L': { desc: 'Rectangular', angle: '90°' },
+                'M': { desc: '86° Rhombic', angle: '86°' },
+                'O': { desc: 'Octagonal', angle: '135°' },
+                'P': { desc: 'Pentagonal', angle: '108°' },
+                'R': { desc: 'Round', angle: '—' },
+                'S': { desc: 'Square', angle: '90°' },
+                'T': { desc: 'Triangular', angle: '60°' },
+                'V': { desc: '35° Rhombic', angle: '35°' },
+                'W': { desc: 'Trigon (80°)', angle: '80°' },
+                'A': { desc: '85° Parallelogram', angle: '85°' },
+                'B': { desc: '82° Parallelogram', angle: '82°' }
+            },
+            relief: {
+                'N': { desc: '0° Negative', note: 'Double-sided use' },
+                'A': { desc: '3° Positive', note: 'Light positive' },
+                'B': { desc: '5° Positive', note: 'General positive' },
+                'C': { desc: '7° Positive', note: 'Standard positive' },
+                'D': { desc: '15° Positive', note: 'High positive' },
+                'E': { desc: '20° Positive', note: 'Very high positive' },
+                'F': { desc: '25° Positive', note: 'Ultra-high positive' },
+                'G': { desc: '30° Positive', note: 'Maximum positive' },
+                'P': { desc: '11° Positive', note: 'Medium positive' }
+            },
+            tolerance: {
+                'A': { ic: '±0.025 mm', th: '±0.025 mm', desc: 'High precision ground' },
+                'B': { ic: '±0.025 mm', th: '±0.025 mm', desc: 'Precision ground, restricted apex' },
+                'C': { ic: '±0.025 mm', th: '±0.013 mm', desc: 'Precision ground' },
+                'D': { ic: '±0.025 mm', th: '±0.025 mm', desc: 'Precision, restricted apex' },
+                'E': { ic: '±0.025 mm', th: '±0.025 mm', desc: 'Precision ground' },
+                'F': { ic: '±0.013 mm', th: '±0.025 mm', desc: 'Finish ground' },
+                'G': { ic: '±0.025 mm', th: '±0.13 mm',  desc: 'Finishing tolerance' },
+                'H': { ic: '±0.013 mm', th: '±0.013 mm', desc: 'Super precision' },
+                'J': { ic: '±0.05–0.15 mm', th: '±0.025 mm', desc: 'Precision, varies by size' },
+                'K': { ic: '±0.05–0.15 mm', th: '±0.013 mm', desc: 'Precision ground' },
+                'L': { ic: '±0.05–0.15 mm', th: '±0.025 mm', desc: 'Semi-precision' },
+                'M': { ic: '±0.05–0.15 mm', th: '±0.13 mm',  desc: 'Standard machining' },
+                'N': { ic: '±0.05–0.15 mm', th: '±0.025 mm', desc: 'Unground, standard' },
+                'R': { ic: '±0.05–0.15 mm', th: '±0.013 mm', desc: 'Unground, restricted' },
+                'U': { ic: '±0.13–0.38 mm', th: '±0.13 mm',  desc: 'Un-ground roughing' }
+            },
+            hole: {
+                'A': { desc: 'Plain cylindrical hole, no breaker' },
+                'F': { desc: 'Countersunk top + cylindrical hole, no breaker' },
+                'G': { desc: 'Double-sided, hole + chipbreaker both sides' },
+                'M': { desc: 'Standard hole + chipbreaker one side' },
+                'N': { desc: 'No hole (solid insert)' },
+                'Q': { desc: 'Double-sided cylindrical hole, no breaker' },
+                'R': { desc: 'Chipbreaker one side, no hole' },
+                'T': { desc: 'Countersunk hole, single-sided with chipbreaker' },
+                'W': { desc: 'Countersunk hole, no chipbreaker' },
+                'X': { desc: 'Special / non-standard configuration' },
+                'B': { desc: 'Single-sided hole + chipbreaker' }
+            },
+            edge: {
+                'E': { desc: 'Sharp (honed only, minimal)' },
+                'F': { desc: 'Sharp with protective land' },
+                'K': { desc: 'Double chamfer' },
+                'P': { desc: 'Chamfer + hone combination' },
+                'S': { desc: 'Honed edge (radius hone)' },
+                'T': { desc: 'Chamfer only' },
+                'Z': { desc: 'Special / manufacturer-defined' }
+            },
+            hand: {
+                'R': { desc: 'Right-hand cut' },
+                'L': { desc: 'Left-hand cut' },
+                'N': { desc: 'Neutral (both directions)' }
+            },
+            size: {
+                iso:  { '06': 6.35, '08': 8.0, '09': 9.52, '12': 12.70, '16': 15.88, '19': 19.05, '25': 25.40 },
+                ansi: { '2': 6.35, '2.5': 8.0, '3': 9.52, '4': 12.70, '5': 15.88, '6': 19.05, '8': 25.40 }
+            },
+            thickness: {
+                iso:  { '03': 3.18, 'T3': 3.97, '04': 4.76, '06': 6.35, '07': 7.94, '09': 9.52 },
+                ansi: { '2': 3.18, '2.5': 3.97, '3': 4.76, '4': 6.35, '5': 7.94, '6': 9.52 }
+            },
+            radius: {
+                iso:  { '00': 0, '04': 0.4, '08': 0.8, '12': 1.2, '16': 1.6, '20': 2.0, '24': 2.4 },
+                ansi: { '0': 0, '1': 0.40, '2': 0.79, '3': 1.19, '4': 1.59 }
+            }
+        };
+
+        let currentUnit = 'ansi';
+        let buildState = { shape: 'C', relief: 'N', tolerance: 'M', hole: 'G', size: '12', thick: '04', rad: '08', edge: 'E', hand: 'N' };
+
+        // bar colors keyed to decode position
+        const BAR_COLORS = ['#c8ff00','#e8e8e8','#c8ff00','#8a8a9a','#c8ff00','#e8e8e8','#8a8a9a','#c8ff00','#e8e8e8'];
+
+        function switchMode(mode) {
+            ['decoder', 'info', 'builder'].forEach(m => {
+                document.getElementById(`mode-${m}`).classList.add('hidden');
+                const t = document.getElementById(`tab-${m}`);
+                t.classList.remove('tab-active');
+            });
+            document.getElementById(`mode-${mode}`).classList.remove('hidden');
+            document.getElementById(`tab-${mode}`).classList.add('tab-active');
+            if (mode === 'info') renderTables();
+        }
+
+        function toggleUnits() {
+            currentUnit = currentUnit === 'ansi' ? 'iso' : 'ansi';
+            document.getElementById('unit-toggle-btn').innerText = `Units: ${currentUnit === 'ansi' ? 'ANSI (Inch)' : 'ISO (Metric)'}`;
+            renderTables();
+        }
+
+        function renderTables() {
+            const row = (code, colorClass, cells) =>
+                `<tr><td class="td-code ${colorClass}">${code}</td>${cells.map(c => `<td>${c}</td>`).join('')}</tr>`;
+
+            const fill = (id, data, mapper) => {
+                document.querySelector(`#${id} tbody`).innerHTML =
+                    Object.entries(data).map(([k, v]) => mapper(k, v)).join('');
+            };
+
+            fill('table-shape',   DATA.shape,     (k,v) => row(k,'',[ v.desc, `<span style="color:var(--muted)">${v.angle}</span>` ]));
+            fill('table-relief',  DATA.relief,    (k,v) => row(k,'',[ v.desc, `<span style="color:var(--muted);font-size:0.75rem">${v.note}</span>` ]));
+            fill('table-tolerance', DATA.tolerance,(k,v) => row(k,'',[ `<span class="td-mono">${v.ic}</span>`, `<span class="td-mono">${v.th}</span>`, v.desc ]));
+            fill('table-type',    DATA.hole,      (k,v) => row(k,'',[ v.desc ]));
+            fill('table-edge',    DATA.edge,      (k,v) => row(k,'',[ v.desc ]));
+            fill('table-hand',    DATA.hand,      (k,v) => row(k,'',[ v.desc ]));
+
+            document.querySelectorAll('.unit-label').forEach(el =>
+                el.innerText = currentUnit === 'ansi' ? 'Inch' : 'Metric'
+            );
+
+            const renderDim = (id, data) => {
+                const tbody = document.querySelector(`#${id} tbody`);
+                const isoKeys  = Object.keys(data.iso);
+                const ansiKeys = Object.keys(data.ansi);
+                tbody.innerHTML = isoKeys.map((k, i) => {
+                    const mm = data.iso[k];
+                    const val = currentUnit === 'ansi' ? `${(mm / 25.4).toFixed(3)}"` : `${mm.toFixed(2)} mm`;
+                    return `<tr>
+                        <td class="td-code">${k}</td>
+                        <td class="td-mono">${ansiKeys[i] || '—'}</td>
+                        <td style="text-align:right;font-weight:500;color:var(--text)">${val}</td>
+                    </tr>`;
+                }).join('');
+            };
+            renderDim('table-size',  DATA.size);
+            renderDim('table-thick', DATA.thickness);
+
+            const radTbody = document.querySelector('#table-radius tbody');
+            radTbody.innerHTML = Object.entries(DATA.radius.iso).map(([k, v]) => {
+                const val = currentUnit === 'ansi' ? `${(v / 25.4).toFixed(4)}"` : `${v.toFixed(1)} mm`;
+                return `<tr>
+                    <td class="td-code">${k}</td>
+                    <td style="text-align:right;font-weight:500;color:var(--text)">${val}</td>
+                </tr>`;
+            }).join('');
+        }
+
+        function loadSample(code) {
+            document.getElementById('decoder-input').value = code;
+            decode();
+        }
+
+        function decode() {
+            const raw = document.getElementById('decoder-input').value.trim().toUpperCase();
+            const resDiv = document.getElementById('decoder-results');
+            const grid   = document.getElementById('decode-grid');
+            const badge  = document.getElementById('standard-badge');
+
+            if (raw === '') { resDiv.classList.add('hidden'); return; }
+            const cleaned = raw.replace(/[-\s]/g, '');
+
+            const isANSI7 = /^[A-Z]{4}[0-9]{3}$/.test(cleaned);
+            const isISO10 = /^[A-Z]{4}[0-9]{6}[A-Z]{2}$/.test(cleaned);
+            const isISO8  = /^[A-Z]{4}[0-9]{4}[A-Z]{2}$/.test(cleaned);
+            const isISO6  = /^[A-Z]{4}[0-9]{6}$/.test(cleaned);
+
+            resDiv.classList.remove('hidden');
+
+            if (!isANSI7 && !isISO10 && !isISO8 && !isISO6) {
+                badge.innerText = 'Invalid Format';
+                badge.className = 'standard-badge badge-err';
+                grid.innerHTML = `<div class="decode-empty">Unsupported code structure. Try CNMG432, CNMG120408, or CNMG120408EN</div>`;
+                return;
+            }
+
+            const isISO = !isANSI7;
+            badge.innerText = isISO ? 'Metric (ISO)' : 'Imperial (ANSI)';
+            badge.className = `standard-badge ${isISO ? 'badge-iso' : 'badge-ansi'}`;
+
+            const shapeData = DATA.shape[cleaned[0]];
+            const reliefData = DATA.relief[cleaned[1]];
+            const tolData = DATA.tolerance[cleaned[2]];
+            const holeData = DATA.hole[cleaned[3]];
+
+            const parts = [
+                { label: 'Shape',     val: shapeData   ? `${shapeData.desc} (${shapeData.angle})`    : `Unknown (${cleaned[0]})` },
+                { label: 'Relief',    val: reliefData  ? `${reliefData.desc} — ${reliefData.note}`   : `Unknown (${cleaned[1]})` },
+                { label: 'Tolerance', val: tolData     ? `${tolData.desc} · IC: ${tolData.ic}`        : `Unknown (${cleaned[2]})` },
+                { label: 'Type',      val: holeData    ? holeData.desc                                : `Unknown (${cleaned[3]})` }
+            ];
+
+            const num = cleaned.substring(4);
+
+            if (isISO) {
+                const s = num.substring(0,2), t = num.substring(2,4), r = num.substring(4,6);
+                const mmSize  = DATA.size.iso[s]      !== undefined ? DATA.size.iso[s].toFixed(2)      : parseInt(s).toFixed(2);
+                const mmThick = DATA.thickness.iso[t] !== undefined ? DATA.thickness.iso[t].toFixed(2) : parseInt(t).toFixed(2);
+                const mmRad   = DATA.radius.iso[r]    !== undefined ? DATA.radius.iso[r].toFixed(1)    : (parseInt(r)/10).toFixed(1);
+                parts.push({ label: 'Size (I.C.)', val: `${mmSize} mm` });
+                parts.push({ label: 'Thickness',   val: `${mmThick} mm` });
+                parts.push({ label: 'Nose Radius', val: `${mmRad} mm` });
+                if (isISO10 || isISO8) {
+                    const extra = cleaned.slice(-2);
+                    const edgeData = DATA.edge[extra[0]], handData = DATA.hand[extra[1]];
+                    parts.push({ label: 'Edge Condition', val: edgeData ? edgeData.desc : `Unknown (${extra[0]})` });
+                    parts.push({ label: 'Cutting Hand',   val: handData ? handData.desc : `Unknown (${extra[1]})` });
+                }
+            } else {
+                const s = parseInt(num[0]), t = parseInt(num[1]), r = parseInt(num[2]);
+                parts.push({ label: 'Size (I.C.)', val: `${s}/8" (${(s*25.4/8).toFixed(2)} mm)` });
+                parts.push({ label: 'Thickness',   val: `${t}/16" (${(t*25.4/16).toFixed(2)} mm)` });
+                parts.push({ label: 'Nose Radius', val: `${r}/64" (${(r*25.4/64).toFixed(2)} mm)` });
+            }
+
+            grid.innerHTML = parts.map((p, i) => `
+                <div class="decode-card">
+                    <div class="decode-bar" style="background:${BAR_COLORS[i % BAR_COLORS.length]}"></div>
+                    <div>
+                        <span class="decode-label">${p.label}</span>
+                        <span class="decode-val">${p.val}</span>
+                    </div>
+                </div>`).join('');
+        }
+
+        function getBtnClass(isActive) {
+            return 'build-btn' + (isActive ? ' build-btn-active' : '');
+        }
+
+        function renderBtns(id, dataObj, stateKey, descId) {
+            const container = document.getElementById(id);
+            container.innerHTML = '';
+            Object.entries(dataObj).forEach(([k, v]) => {
+                const b = document.createElement('button');
+                b.innerText = k;
+                b.dataset.key = k;
+                b.title = typeof v === 'object' ? (v.desc || '') : v;
+                b.className = getBtnClass(buildState[stateKey] === k);
+                b.onclick = () => {
+                    const prev = buildState[stateKey];
+                    buildState[stateKey] = k;
+                    const prevBtn = container.querySelector(`[data-key="${prev}"]`);
+                    if (prevBtn) prevBtn.className = getBtnClass(false);
+                    b.className = getBtnClass(true);
+                    document.getElementById(descId).innerText = typeof v === 'object'
+                        ? (v.desc + (v.note ? ' — ' + v.note : '') + (v.ic ? ` · IC: ${v.ic}` : ''))
+                        : v;
+                    updateBuilderUI();
+                };
+                container.appendChild(b);
+            });
+            const cv = dataObj[buildState[stateKey]];
+            document.getElementById(descId).innerText = typeof cv === 'object'
+                ? (cv.desc + (cv.note ? ' — ' + cv.note : '') + (cv.ic ? ` · IC: ${cv.ic}` : ''))
+                : (cv || '');
+        }
+
+        function initBuilder() {
+            renderBtns('build-shape',     DATA.shape,     'shape',     'desc-shape');
+            renderBtns('build-relief',    DATA.relief,    'relief',    'desc-relief');
+            renderBtns('build-tolerance', DATA.tolerance, 'tolerance', 'desc-tolerance');
+            renderBtns('build-hole',      DATA.hole,      'hole',      'desc-hole');
+            renderBtns('build-edge',      DATA.edge,      'edge',      'desc-edge');
+            renderBtns('build-hand',      DATA.hand,      'hand',      'desc-hand');
+
+            const populateSelect = (id, obj, key) => {
+                const s = document.getElementById(id);
+                s.innerHTML = '';
+                Object.entries(obj).forEach(([k, v]) => {
+                    const opt = document.createElement('option');
+                    opt.value = k;
+                    opt.text = v === 0 ? `${k}: Sharp` : `${k}: ${v.toFixed(2)} mm`;
+                    s.appendChild(opt);
+                });
+                s.value = buildState[key];
+            };
+            populateSelect('build-size',      DATA.size.iso,      'size');
+            populateSelect('build-thickness', DATA.thickness.iso, 'thick');
+            populateSelect('build-radius',    DATA.radius.iso,    'rad');
+            updateBuilderUI();
+        }
+
+        function updateState(key, val) {
+            buildState[key] = val;
+            updateBuilderUI();
+        }
+
+        function updateBuilderUI() {
+            const code = `${buildState.shape}${buildState.relief}${buildState.tolerance}${buildState.hole}${buildState.size}${buildState.thick}${buildState.rad}${buildState.edge}${buildState.hand}`;
+            document.getElementById('builder-output').innerText = code;
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            initBuilder();
+            loadSample('CNMG120408EN');
+        });
+    </script>
+</body>
+</html>
