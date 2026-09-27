@@ -167,7 +167,7 @@
             margin-top: 1rem;
             display: flex; flex-wrap: wrap; gap: 1rem; align-items: center;
         }
-        .sample-group { display: flex; align-items: center; gap: 0.5rem; }
+        .sample-group { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; }
         .sample-tag {
             font-size: 0.55rem; font-weight: 500;
             letter-spacing: 0.14em; text-transform: uppercase;
@@ -314,8 +314,11 @@
         .unit-toggle:hover { border-color: var(--accent); color: var(--accent); }
 
         .info-section { margin-bottom: 2.5rem; }
-        .dim-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; }
+        .dim-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; }
         @media (max-width: 600px) { .dim-grid { grid-template-columns: 1fr; } }
+        .table-scroll { overflow-x: auto; }
+        .table-scroll th, .table-scroll td { white-space: nowrap; }
+        .dim-note { font-size: 0.72rem; font-weight: 300; color: var(--muted); line-height: 1.6; margin: -1.2rem 0 1.4rem; padding-left: 2px; }
         .dim-col-label {
             font-size: 0.58rem; font-weight: 500;
             letter-spacing: 0.14em; text-transform: uppercase;
@@ -351,6 +354,8 @@
             line-height: 1; word-break: break-all;
         }
 
+        .builder-decode-btn { margin-top: 1rem; position: relative; z-index: 1; }
+
         .builder-section { margin-bottom: 2.2rem; }
         .builder-section-title {
             font-size: 0.58rem; font-weight: 500;
@@ -359,31 +364,6 @@
             display: flex; align-items: center; gap: 8px;
         }
         .builder-section-title::after { content: ''; flex: 1; height: 1px; background: var(--border); }
-
-        /* builder btn row */
-        .btn-row {
-            display: flex; overflow-x: auto; gap: 6px; padding-bottom: 4px;
-        }
-        .btn-row::-webkit-scrollbar { height: 2px; }
-        .btn-row::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
-
-        .build-btn {
-            min-width: 46px; height: 46px; flex-shrink: 0;
-            border-radius: var(--radius);
-            font-family: 'Bebas Neue', sans-serif;
-            font-size: 1.2rem; letter-spacing: 0.06em;
-            border: 1px solid var(--border);
-            background: var(--surface2);
-            color: var(--muted);
-            cursor: pointer; transition: all 0.2s;
-        }
-        .build-btn:hover { border-color: var(--border2); color: var(--text); }
-        .build-btn-active {
-            background: transparent;
-            border-color: var(--accent) !important;
-            color: var(--accent) !important;
-            box-shadow: inset 0 0 0 1px rgba(200,255,0,0.15);
-        }
 
         .desc-box {
             margin-top: 0.7rem;
@@ -398,8 +378,7 @@
         }
 
         /* builder dim selects */
-        .dim-select-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; }
-        @media (max-width: 560px) { .dim-select-grid { grid-template-columns: 1fr; } }
+        .dim-select-grid { display: grid; grid-template-columns: 1fr; gap: 1rem; }
 
         .dim-select-card {
             background: var(--surface2);
@@ -434,7 +413,7 @@
             to   { opacity: 1; transform: translateY(0); }
         }
         @media (prefers-reduced-motion: reduce) {
-            *, *::after { animation: none !important; transition: none !important; }
+            *, *::before, *::after { animation: none !important; transition: none !important; }
         }
     </style>
 </head>
@@ -462,7 +441,7 @@
         <div id="mode-decoder" class="panel">
             <div class="notice">
                 <span class="notice-icon">◈</span>
-                <p>Supports standard 7- and 9-character Turning insert codes (ISO and ANSI). Decodes geometry, tolerance, edge condition, hand, and nominal sizing per global machining standards.</p>
+                <p>Supports ISO turning insert codes (e.g. CNMG120408EN, CCMT09T304, RCMT1204M0) and ANSI codes (e.g. CNMG432, CCMT21.51). Decodes geometry, tolerance, edge condition, hand, and nominal sizing. A manufacturer chipbreaker after a hyphen (e.g. -PM) is listed separately.</p>
             </div>
 
             <div style="margin-bottom: 1.6rem;">
@@ -479,6 +458,7 @@
                     <div class="sample-group">
                         <span class="sample-tag">ISO:</span>
                         <button onclick="loadSample('CNMG120408')"   class="sample-btn">CNMG120408</button>
+                        <button onclick="loadSample('CCMT09T304')"   class="sample-btn">CCMT09T304</button>
                         <button onclick="loadSample('TNMG160404ER')" class="sample-btn">TNMG160404ER</button>
                         <button onclick="loadSample('VNMG160408EL')" class="sample-btn">VNMG160408EL</button>
                     </div>
@@ -522,29 +502,28 @@
                 <div class="table-wrapper"><table id="table-type"><thead><tr><th style="width:80px">Code</th><th>Features</th></tr></thead><tbody></tbody></table></div>
             </div>
             <div class="info-section">
+                <div class="section-label">5 — Dimension Mappings</div>
+                <div class="dim-col-label">Size (I.C.)</div>
+                <div class="table-wrapper table-scroll"><table id="table-size"><thead><tr><th>I.C.</th><th>ANSI</th><th>C</th><th>D</th><th>S · R</th><th>T · V</th><th>W</th></tr></thead><tbody></tbody></table></div>
+                <p class="dim-note">ISO size codes give the cutting-edge length in mm, so the code for a given I.C. depends on the shape. Metric round inserts (radius code M0) use the diameter in mm instead.</p>
+                <div class="dim-grid">
+                    <div>
+                        <div class="dim-col-label">Thickness</div>
+                        <div class="table-wrapper"><table id="table-thick"><thead><tr><th>ISO</th><th>ANSI</th><th class="unit-label" style="text-align:right">Value</th></tr></thead><tbody></tbody></table></div>
+                    </div>
+                    <div>
+                        <div class="dim-col-label">Nose Radius</div>
+                        <div class="table-wrapper"><table id="table-radius"><thead><tr><th>ISO</th><th>ANSI</th><th class="unit-label" style="text-align:right">Value</th></tr></thead><tbody></tbody></table></div>
+                    </div>
+                </div>
+            </div>
+            <div class="info-section">
                 <div class="section-label">6 — Cutting Edge Condition</div>
                 <div class="table-wrapper"><table id="table-edge"><thead><tr><th style="width:80px">Code</th><th>Description</th></tr></thead><tbody></tbody></table></div>
             </div>
             <div class="info-section">
                 <div class="section-label">7 — Cutting Direction (Hand)</div>
                 <div class="table-wrapper"><table id="table-hand"><thead><tr><th style="width:80px">Code</th><th>Description</th></tr></thead><tbody></tbody></table></div>
-            </div>
-            <div class="info-section">
-                <div class="section-label">5 — Dimension Mappings</div>
-                <div class="dim-grid">
-                    <div>
-                        <div class="dim-col-label">Size (I.C.)</div>
-                        <div class="table-wrapper"><table id="table-size"><thead><tr><th>ISO</th><th>ANSI</th><th class="unit-label" style="text-align:right">Value</th></tr></thead><tbody></tbody></table></div>
-                    </div>
-                    <div>
-                        <div class="dim-col-label">Thickness</div>
-                        <div class="table-wrapper"><table id="table-thick"><thead><tr><th>ISO</th><th>ANSI</th><th class="unit-label" style="text-align:right">Value</th></tr></thead><tbody></tbody></table></div>
-                    </div>
-                    <div>
-                        <div class="dim-col-label">Nose Radius (ISO)</div>
-                        <div class="table-wrapper"><table id="table-radius"><thead><tr><th>Code</th><th class="unit-label" style="text-align:right">Value</th></tr></thead><tbody></tbody></table></div>
-                    </div>
-                </div>
             </div>
         </div>
 
@@ -554,42 +533,42 @@
             <div class="builder-display">
                 <span class="builder-display-label">— Active Specification Code</span>
                 <div id="builder-output">CNMG120408EN</div>
+                <button class="sample-btn builder-decode-btn" onclick="loadSample(document.getElementById('builder-output').innerText); switchMode('decoder')">Open in decoder →</button>
             </div>
 
             <div class="builder-section">
                 <div class="builder-section-title">1 — Shape Geometry</div>
-                <div class="btn-row" id="build-shape"></div>
+                <select class="dim-select" id="build-shape" aria-label="Shape geometry"></select>
                 <div class="desc-box" id="desc-shape"></div>
             </div>
             <div class="builder-section">
                 <div class="builder-section-title">2 — Relief Angle</div>
-                <div class="btn-row" id="build-relief"></div>
+                <select class="dim-select" id="build-relief" aria-label="Relief angle"></select>
                 <div class="desc-box" id="desc-relief"></div>
             </div>
             <div class="builder-section">
                 <div class="builder-section-title">3 — Tolerance Class</div>
-                <div class="btn-row" id="build-tolerance"></div>
+                <select class="dim-select" id="build-tolerance" aria-label="Tolerance class"></select>
                 <div class="desc-box" id="desc-tolerance"></div>
             </div>
             <div class="builder-section">
                 <div class="builder-section-title">4 — Insert Type / Fixing</div>
-                <div class="btn-row" id="build-hole"></div>
-                <div class="desc-box" id="desc-hole"></div>
+                <select class="dim-select" id="build-hole" aria-label="Insert type / fixing"></select>
             </div>
 
             <div class="builder-section">
                 <div class="builder-section-title">5 — Nominal Dimensions (ISO)</div>
                 <div class="dim-select-grid">
                     <div class="dim-select-card">
-                        <label class="dim-select-label">Size (I.C.)</label>
+                        <label class="dim-select-label" for="build-size">Size (I.C.)</label>
                         <select id="build-size" class="dim-select" onchange="updateState('size', this.value)"></select>
                     </div>
                     <div class="dim-select-card">
-                        <label class="dim-select-label">Thickness</label>
+                        <label class="dim-select-label" for="build-thickness">Thickness</label>
                         <select id="build-thickness" class="dim-select" onchange="updateState('thick', this.value)"></select>
                     </div>
                     <div class="dim-select-card">
-                        <label class="dim-select-label">Nose Radius</label>
+                        <label class="dim-select-label" for="build-radius">Nose Radius</label>
                         <select id="build-radius" class="dim-select" onchange="updateState('rad', this.value)"></select>
                     </div>
                 </div>
@@ -597,13 +576,11 @@
 
             <div class="builder-section">
                 <div class="builder-section-title">6 — Cutting Edge Condition</div>
-                <div class="btn-row" id="build-edge"></div>
-                <div class="desc-box" id="desc-edge"></div>
+                <select class="dim-select" id="build-edge" aria-label="Cutting edge condition"></select>
             </div>
             <div class="builder-section">
                 <div class="builder-section-title">7 — Cutting Direction (Hand)</div>
-                <div class="btn-row" id="build-hand"></div>
-                <div class="desc-box" id="desc-hand"></div>
+                <select class="dim-select" id="build-hand" aria-label="Cutting direction"></select>
             </div>
         </div>
 
@@ -683,26 +660,74 @@
                 'R': { desc: 'Right-hand cut' },
                 'L': { desc: 'Left-hand cut' },
                 'N': { desc: 'Neutral (both directions)' }
-            },
-            size: {
-                iso:  { '06': 6.35, '08': 8.0, '09': 9.52, '12': 12.70, '16': 15.88, '19': 19.05, '25': 25.40 },
-                ansi: { '2': 6.35, '2.5': 8.0, '3': 9.52, '4': 12.70, '5': 15.88, '6': 19.05, '8': 25.40 }
-            },
-            thickness: {
-                iso:  { '03': 3.18, 'T3': 3.97, '04': 4.76, '06': 6.35, '07': 7.94, '09': 9.52 },
-                ansi: { '2': 3.18, '2.5': 3.97, '3': 4.76, '4': 6.35, '5': 7.94, '6': 9.52 }
-            },
-            radius: {
-                iso:  { '00': 0, '04': 0.4, '08': 0.8, '12': 1.2, '16': 1.6, '20': 2.0, '24': 2.4 },
-                ansi: { '0': 0, '1': 0.40, '2': 0.79, '3': 1.19, '4': 1.59 }
             }
         };
+
+        // Standard I.C. series. ISO size codes are cutting-edge lengths, so the code for
+        // each I.C. depends on shape (index-aligned with SIZE_CODES below).
+        const IC_SERIES = [
+            { inch: '1/4', ansi: '2', mm: 6.35 },
+            { inch: '3/8', ansi: '3', mm: 9.525 },
+            { inch: '1/2', ansi: '4', mm: 12.70 },
+            { inch: '5/8', ansi: '5', mm: 15.875 },
+            { inch: '3/4', ansi: '6', mm: 19.05 },
+            { inch: '1',   ansi: '8', mm: 25.40 }
+        ];
+        const SIZE_CODES = {
+            C: ['06', '09', '12', '16', '19', '25'],
+            D: ['07', '11', '15', '19', '23', '31'],
+            S: ['06', '09', '12', '15', '19', '25'],
+            R: ['06', '09', '12', '15', '19', '25'],   // inch-series round (radius code 00)
+            T: ['11', '16', '22', '27', '33', '44'],
+            V: ['11', '16', '22', '27', '33', '44'],
+            W: ['04', '06', '08', '10', '13', '17']
+        };
+        const METRIC_ROUND = ['06', '08', '10', '12', '16', '20', '25', '32'];   // diameter in mm (radius code M0)
+        const GENERIC_EDGE = ['06', '08', '09', '11', '12', '15', '16', '19', '22', '25'];
+        const DEFAULT_IC = 2;   // 1/2"
+
+        const THICKNESS = [
+            { iso: '01', ansi: '1',   mm: 1.59, inch: '1/16' },
+            { iso: 'T1', ansi: '1.2', mm: 1.98, inch: '5/64' },
+            { iso: '02', ansi: '1.5', mm: 2.38, inch: '3/32' },
+            { iso: 'T2', ansi: '1.8', mm: 2.78, inch: '7/64' },
+            { iso: '03', ansi: '2',   mm: 3.18, inch: '1/8' },
+            { iso: 'T3', ansi: '2.5', mm: 3.97, inch: '5/32' },
+            { iso: '04', ansi: '3',   mm: 4.76, inch: '3/16' },
+            { iso: '05', ansi: '3.5', mm: 5.56, inch: '7/32' },
+            { iso: '06', ansi: '4',   mm: 6.35, inch: '1/4' },
+            { iso: '07', ansi: '5',   mm: 7.94, inch: '5/16' },
+            { iso: '09', ansi: '6',   mm: 9.52, inch: '3/8' }
+        ];
+        const RADIUS = [
+            { iso: '00', ansi: '0', mm: 0, inch: '0' },
+            { iso: '02', ansi: '½', mm: 0.2, inch: '1/128' },
+            { iso: '04', ansi: '1', mm: 0.4, inch: '1/64' },
+            { iso: '08', ansi: '2', mm: 0.8, inch: '1/32' },
+            { iso: '12', ansi: '3', mm: 1.2, inch: '3/64' },
+            { iso: '16', ansi: '4', mm: 1.6, inch: '1/16' },
+            { iso: '20', ansi: '5', mm: 2.0, inch: '5/64' },
+            { iso: '24', ansi: '6', mm: 2.4, inch: '3/32' },
+            { iso: 'M0', ansi: '—', mm: null }   // metric round insert, no nose radius
+        ];
 
         let currentUnit = 'ansi';
         let buildState = { shape: 'C', relief: 'N', tolerance: 'M', hole: 'G', size: '12', thick: '04', rad: '08', edge: 'E', hand: 'N' };
 
         // bar colors keyed to decode position
         const BAR_COLORS = ['#c8ff00','#e8e8e8','#c8ff00','#8a8a9a','#c8ff00','#e8e8e8','#8a8a9a','#c8ff00','#e8e8e8'];
+
+        const fracVal = f => { const [n, d] = f.split('/').map(Number); return d ? n / d : n; };
+        // Decimal inch first, then the fraction: 0.500" (1/2")
+        const inchStr = f => f === '0' ? '0.000"' : `${fracVal(f).toFixed(3)}" (${f}")`;
+        // Reduce an ANSI fraction such as 4/8 or 1.5/16 to lowest terms.
+        function reduceFrac(num, den) {
+            while (num % 1 !== 0) { num *= 2; den *= 2; }
+            const gcd = (a, b) => b ? gcd(b, a % b) : a;
+            const g = gcd(num, den);
+            if (num === 0) return '0';
+            return den / g === 1 ? `${num / g}` : `${num / g}/${den / g}`;
+        }
 
         function switchMode(mode) {
             ['decoder', 'info', 'builder'].forEach(m => {
@@ -741,28 +766,27 @@
                 el.innerText = currentUnit === 'ansi' ? 'Inch' : 'Metric'
             );
 
-            const renderDim = (id, data) => {
-                const tbody = document.querySelector(`#${id} tbody`);
-                const isoKeys  = Object.keys(data.iso);
-                const ansiKeys = Object.keys(data.ansi);
-                tbody.innerHTML = isoKeys.map((k, i) => {
-                    const mm = data.iso[k];
-                    const val = currentUnit === 'ansi' ? `${(mm / 25.4).toFixed(3)}"` : `${mm.toFixed(2)} mm`;
-                    return `<tr>
-                        <td class="td-code">${k}</td>
-                        <td class="td-mono">${ansiKeys[i] || '—'}</td>
-                        <td style="text-align:right;font-weight:500;color:var(--text)">${val}</td>
-                    </tr>`;
-                }).join('');
-            };
-            renderDim('table-size',  DATA.size);
-            renderDim('table-thick', DATA.thickness);
+            const fmt = (mm, inch) => currentUnit === 'ansi' ? inchStr(inch) : `${mm.toFixed(2)} mm`;
 
-            const radTbody = document.querySelector('#table-radius tbody');
-            radTbody.innerHTML = Object.entries(DATA.radius.iso).map(([k, v]) => {
-                const val = currentUnit === 'ansi' ? `${(v / 25.4).toFixed(4)}"` : `${v.toFixed(1)} mm`;
+            document.querySelector('#table-size tbody').innerHTML = IC_SERIES.map((ic, i) => `<tr>
+                    <td style="font-weight:500;color:var(--text)">${fmt(ic.mm, ic.inch)}</td>
+                    <td class="td-mono">${ic.ansi}</td>
+                    ${['C', 'D', 'S', 'T', 'W'].map(sh => `<td class="td-code">${SIZE_CODES[sh][i]}</td>`).join('')}
+                </tr>`).join('');
+
+            document.querySelector('#table-thick tbody').innerHTML = THICKNESS.map(t => `<tr>
+                    <td class="td-code">${t.iso}</td>
+                    <td class="td-mono">${t.ansi}</td>
+                    <td style="text-align:right;font-weight:500;color:var(--text)">${fmt(t.mm, t.inch)}</td>
+                </tr>`).join('');
+
+            document.querySelector('#table-radius tbody').innerHTML = RADIUS.map(r => {
+                const val = r.mm === null ? 'Round (metric)'
+                          : r.mm === 0    ? 'Sharp'
+                          : fmt(r.mm, r.inch);
                 return `<tr>
-                    <td class="td-code">${k}</td>
+                    <td class="td-code">${r.iso}</td>
+                    <td class="td-mono">${r.ansi}</td>
                     <td style="text-align:right;font-weight:500;color:var(--text)">${val}</td>
                 </tr>`;
             }).join('');
@@ -773,6 +797,75 @@
             decode();
         }
 
+        // Trailing letters: ISO edge condition + hand (e.g. "EN", "E", "R"), otherwise a manufacturer suffix.
+        function splitTail(tail) {
+            if (!tail) return {};
+            if (tail.length <= 2 && DATA.edge[tail[0]] && (tail.length === 1 || DATA.hand[tail[1]]))
+                return { edge: tail[0], hand: tail[1] };
+            if (tail.length === 1 && DATA.hand[tail]) return { hand: tail };
+            return { suffix: tail };
+        }
+
+        function describeIsoSize(shape, code, rad) {
+            if (shape === 'R' && rad === 'M0')
+                return { label: 'Diameter', val: `${parseInt(code, 10).toFixed(2)} mm` };
+            const codes = SIZE_CODES[shape];
+            if (!codes)
+                return { label: 'Size (Edge Length)', val: `≈ ${parseInt(code, 10)} mm cutting edge` };
+            const i = codes.indexOf(code);
+            const label = shape === 'R' ? 'Diameter' : 'Size (I.C.)';
+            if (i === -1)
+                return { label, val: `Non-standard code ${code} (≈ ${parseInt(code, 10)} mm edge)` };
+            const ic = IC_SERIES[i];
+            return { label, val: `${ic.mm.toFixed(2)} mm · ${inchStr(ic.inch)}` };
+        }
+
+        function parseISO(code) {
+            const m = /^([A-Z])([A-Z])([A-Z])([A-Z])(\d{2})(\d{2}|T\d)(\d{2}|M0)([A-Z]*)$/.exec(code);
+            if (!m) return null;
+            const [, shape, , , , size, thick, rad, tail] = m;
+            if (rad === 'M0' && shape !== 'R') return null;   // M0 is only used on round inserts
+            const th = THICKNESS.find(t => t.iso === thick);
+            const r  = RADIUS.find(x => x.iso === rad);
+            const radMm = r ? r.mm : parseInt(rad, 10) / 10;
+            return {
+                iso: true,
+                dims: [
+                    describeIsoSize(shape, size, rad),
+                    { label: 'Thickness', val: th ? `${th.mm.toFixed(2)} mm · ${inchStr(th.inch)}` : `Unknown (${thick})` },
+                    { label: 'Nose Radius', val: radMm === null ? 'None (round insert)'
+                                              : radMm === 0   ? 'Sharp (0.0 mm)'
+                                              : `${radMm.toFixed(1)} mm` + (r ? ` · ${inchStr(r.inch)}` : '') }
+                ],
+                ...splitTail(tail)
+            };
+        }
+
+        function parseANSI(code) {
+            const m = /^([A-Z])([A-Z])([A-Z])([A-Z])(\d(?:\.5)?)(\d(?:\.\d)?)(\d)?([A-Z]*)$/.exec(code);
+            if (!m) return null;
+            const [, shape, , , , size, thick, rad, tail] = m;
+            if ((rad === undefined) !== (shape === 'R')) return null;   // only round inserts omit the radius digit
+            // ANSI digits count eighths (size), sixteenths (thickness) and sixty-fourths (radius) of an inch.
+            const inchVal = (f, mm) => `${inchStr(f)} · ${mm.toFixed(2)} mm`;
+            const sFrac = reduceFrac(parseFloat(size), 8);
+            const th = THICKNESS.find(x => x.ansi === thick);   // "1.2" / "1.8" are nominal 5/64" / 7/64"
+            const tFrac = th ? th.inch : reduceFrac(parseFloat(thick), 16);
+            const dims = [
+                { label: shape === 'R' ? 'Diameter' : 'Size (I.C.)', val: inchVal(sFrac, fracVal(sFrac) * 25.4) },
+                { label: 'Thickness', val: inchVal(tFrac, th ? th.mm : fracVal(tFrac) * 25.4) }
+            ];
+            if (rad !== undefined) {
+                const rFrac = reduceFrac(parseInt(rad, 10), 64);
+                dims.push({ label: 'Nose Radius', val: rFrac === '0' ? 'Sharp (0)' : inchVal(rFrac, fracVal(rFrac) * 25.4) });
+            }
+            return { iso: false, dims, ...splitTail(tail) };
+        }
+
+        function parseCode(code) {
+            return parseISO(code) || parseANSI(code);
+        }
+
         function decode() {
             const raw = document.getElementById('decoder-input').value.trim().toUpperCase();
             const resDiv = document.getElementById('decoder-results');
@@ -780,25 +873,27 @@
             const badge  = document.getElementById('standard-badge');
 
             if (raw === '') { resDiv.classList.add('hidden'); return; }
-            const cleaned = raw.replace(/[-\s]/g, '');
-
-            const isANSI7 = /^[A-Z]{4}[0-9]{3}$/.test(cleaned);
-            const isISO10 = /^[A-Z]{4}[0-9]{6}[A-Z]{2}$/.test(cleaned);
-            const isISO8  = /^[A-Z]{4}[0-9]{4}[A-Z]{2}$/.test(cleaned);
-            const isISO6  = /^[A-Z]{4}[0-9]{6}$/.test(cleaned);
-
             resDiv.classList.remove('hidden');
 
-            if (!isANSI7 && !isISO10 && !isISO8 && !isISO6) {
+            // Hyphens separate a manufacturer chipbreaker (e.g. "-PM") but may also split the base
+            // code (e.g. "CNMG-432"), so join the fewest leading segments that form a valid code.
+            const segs = raw.split('-').map(x => x.replace(/\s+/g, '')).filter(Boolean);
+            let parsed = null, cleaned = '', chip = '';
+            for (let k = 1; k <= segs.length && !parsed; k++) {
+                cleaned = segs.slice(0, k).join('');
+                parsed = parseCode(cleaned);
+                chip = segs.slice(k).join('-');
+            }
+
+            if (!parsed) {
                 badge.innerText = 'Invalid Format';
                 badge.className = 'standard-badge badge-err';
-                grid.innerHTML = `<div class="decode-empty">Unsupported code structure. Try CNMG432, CNMG120408, or CNMG120408EN</div>`;
+                grid.innerHTML = `<div class="decode-empty">Unsupported code structure. Try CNMG432, CNMG120408EN, CCMT09T304, or TNMG160404-PM</div>`;
                 return;
             }
 
-            const isISO = !isANSI7;
-            badge.innerText = isISO ? 'Metric (ISO)' : 'Imperial (ANSI)';
-            badge.className = `standard-badge ${isISO ? 'badge-iso' : 'badge-ansi'}`;
+            badge.innerText = parsed.iso ? 'Metric (ISO)' : 'Imperial (ANSI)';
+            badge.className = `standard-badge ${parsed.iso ? 'badge-iso' : 'badge-ansi'}`;
 
             const shapeData = DATA.shape[cleaned[0]];
             const reliefData = DATA.relief[cleaned[1]];
@@ -809,31 +904,13 @@
                 { label: 'Shape',     val: shapeData   ? `${shapeData.desc} (${shapeData.angle})`    : `Unknown (${cleaned[0]})` },
                 { label: 'Relief',    val: reliefData  ? `${reliefData.desc} — ${reliefData.note}`   : `Unknown (${cleaned[1]})` },
                 { label: 'Tolerance', val: tolData     ? `${tolData.desc} · IC: ${tolData.ic}`        : `Unknown (${cleaned[2]})` },
-                { label: 'Type',      val: holeData    ? holeData.desc                                : `Unknown (${cleaned[3]})` }
+                { label: 'Type',      val: holeData    ? holeData.desc                                : `Unknown (${cleaned[3]})` },
+                ...parsed.dims
             ];
-
-            const num = cleaned.substring(4);
-
-            if (isISO) {
-                const s = num.substring(0,2), t = num.substring(2,4), r = num.substring(4,6);
-                const mmSize  = DATA.size.iso[s]      !== undefined ? DATA.size.iso[s].toFixed(2)      : parseInt(s).toFixed(2);
-                const mmThick = DATA.thickness.iso[t] !== undefined ? DATA.thickness.iso[t].toFixed(2) : parseInt(t).toFixed(2);
-                const mmRad   = DATA.radius.iso[r]    !== undefined ? DATA.radius.iso[r].toFixed(1)    : (parseInt(r)/10).toFixed(1);
-                parts.push({ label: 'Size (I.C.)', val: `${mmSize} mm` });
-                parts.push({ label: 'Thickness',   val: `${mmThick} mm` });
-                parts.push({ label: 'Nose Radius', val: `${mmRad} mm` });
-                if (isISO10 || isISO8) {
-                    const extra = cleaned.slice(-2);
-                    const edgeData = DATA.edge[extra[0]], handData = DATA.hand[extra[1]];
-                    parts.push({ label: 'Edge Condition', val: edgeData ? edgeData.desc : `Unknown (${extra[0]})` });
-                    parts.push({ label: 'Cutting Hand',   val: handData ? handData.desc : `Unknown (${extra[1]})` });
-                }
-            } else {
-                const s = parseInt(num[0]), t = parseInt(num[1]), r = parseInt(num[2]);
-                parts.push({ label: 'Size (I.C.)', val: `${s}/8" (${(s*25.4/8).toFixed(2)} mm)` });
-                parts.push({ label: 'Thickness',   val: `${t}/16" (${(t*25.4/16).toFixed(2)} mm)` });
-                parts.push({ label: 'Nose Radius', val: `${r}/64" (${(r*25.4/64).toFixed(2)} mm)` });
-            }
+            if (parsed.edge) parts.push({ label: 'Edge Condition', val: DATA.edge[parsed.edge].desc });
+            if (parsed.hand) parts.push({ label: 'Cutting Hand',   val: DATA.hand[parsed.hand].desc });
+            const suffix = [parsed.suffix, chip].filter(Boolean).join('-');
+            if (suffix) parts.push({ label: 'Chipbreaker / Suffix', val: `${suffix} (manufacturer-specific)` });
 
             grid.innerHTML = parts.map((p, i) => `
                 <div class="decode-card">
@@ -845,65 +922,100 @@
                 </div>`).join('');
         }
 
-        function getBtnClass(isActive) {
-            return 'build-btn' + (isActive ? ' build-btn-active' : '');
+        // Extra detail shown under a builder dropdown (the option text already names the property).
+        function detailText(stateKey, v) {
+            if (stateKey === 'shape')     return v.angle === '—' ? 'Round — no point angle' : `Point angle: ${v.angle}`;
+            if (stateKey === 'relief')    return v.note;
+            if (stateKey === 'tolerance') return `I.C. tolerance ${v.ic} · Thickness tolerance ${v.th}`;
+            return '';
         }
 
-        function renderBtns(id, dataObj, stateKey, descId) {
-            const container = document.getElementById(id);
-            container.innerHTML = '';
-            Object.entries(dataObj).forEach(([k, v]) => {
-                const b = document.createElement('button');
-                b.innerText = k;
-                b.dataset.key = k;
-                b.title = typeof v === 'object' ? (v.desc || '') : v;
-                b.className = getBtnClass(buildState[stateKey] === k);
-                b.onclick = () => {
-                    const prev = buildState[stateKey];
-                    buildState[stateKey] = k;
-                    const prevBtn = container.querySelector(`[data-key="${prev}"]`);
-                    if (prevBtn) prevBtn.className = getBtnClass(false);
-                    b.className = getBtnClass(true);
-                    document.getElementById(descId).innerText = typeof v === 'object'
-                        ? (v.desc + (v.note ? ' — ' + v.note : '') + (v.ic ? ` · IC: ${v.ic}` : ''))
-                        : v;
-                    updateBuilderUI();
-                };
-                container.appendChild(b);
+        function renderChoice(id, dataObj, stateKey, descId, onChange) {
+            const showDetail = () => {
+                if (descId) document.getElementById(descId).innerText = detailText(stateKey, dataObj[buildState[stateKey]]);
+            };
+            fillSelect(id, Object.entries(dataObj).map(([k, v]) => ({ code: k, text: `${v.desc} — ${k}` })), buildState[stateKey]);
+            document.getElementById(id).onchange = e => {
+                const prev = buildState[stateKey];
+                buildState[stateKey] = e.target.value;
+                showDetail();
+                if (onChange) onChange(prev, e.target.value);
+                updateBuilderUI();
+            };
+            showDetail();
+        }
+
+        // Size options depend on shape (ISO codes are edge lengths) and, for round inserts, on the radius code.
+        function sizeOptions(shape, rad) {
+            if (shape === 'R' && rad === 'M0')
+                return METRIC_ROUND.map(c => ({ code: c, mm: parseInt(c, 10), text: `Ø ${parseInt(c, 10).toFixed(2)} mm — ${c}` }));
+            const codes = SIZE_CODES[shape];
+            if (codes)
+                return codes.map((c, i) => ({ code: c, ic: i, mm: IC_SERIES[i].mm, text: `${IC_SERIES[i].mm.toFixed(2)} mm · ${inchStr(IC_SERIES[i].inch)} — ${c}` }));
+            return GENERIC_EDGE.map(c => ({ code: c, text: `≈ ${parseInt(c, 10)} mm edge — ${c}` }));
+        }
+
+        function radiusOptions(shape) {
+            const list = shape === 'R' ? RADIUS.filter(r => r.iso === 'M0' || r.iso === '00') : RADIUS.filter(r => r.iso !== 'M0');
+            return list.map(r => ({
+                code: r.iso,
+                text: (r.mm === null ? 'None (metric round)' : r.mm === 0 ? 'Sharp' : `${r.mm.toFixed(1)} mm · ${inchStr(r.inch)}`) + ` — ${r.iso}`
+            }));
+        }
+
+        function fillSelect(id, opts, value) {
+            const s = document.getElementById(id);
+            s.innerHTML = '';
+            opts.forEach(o => {
+                const opt = document.createElement('option');
+                opt.value = o.code;
+                opt.text = o.text;
+                s.appendChild(opt);
             });
-            const cv = dataObj[buildState[stateKey]];
-            document.getElementById(descId).innerText = typeof cv === 'object'
-                ? (cv.desc + (cv.note ? ' — ' + cv.note : '') + (cv.ic ? ` · IC: ${cv.ic}` : ''))
-                : (cv || '');
+            s.value = value;
+        }
+
+        // Rebuild the size list, keeping the same (or nearest) I.C. when possible.
+        function refreshSizeSelect(prevOpts) {
+            const opts = sizeOptions(buildState.shape, buildState.rad);
+            const prev = (prevOpts || []).find(o => o.code === buildState.size);
+            const nearest = prev && prev.mm !== undefined && opts[0].mm !== undefined
+                ? opts.reduce((a, b) => Math.abs(b.mm - prev.mm) < Math.abs(a.mm - prev.mm) ? b : a)
+                : null;
+            const match = nearest
+                       || opts.find(o => o.code === buildState.size)
+                       || opts.find(o => o.ic === DEFAULT_IC)
+                       || opts[0];
+            buildState.size = match.code;
+            fillSelect('build-size', opts, buildState.size);
+        }
+
+        function onShapeChange(prevShape) {
+            const prevOpts = sizeOptions(prevShape, buildState.rad);
+            if (buildState.shape === 'R' && prevShape !== 'R') buildState.rad = 'M0';
+            if (buildState.shape !== 'R' && prevShape === 'R') buildState.rad = '08';
+            fillSelect('build-radius', radiusOptions(buildState.shape), buildState.rad);
+            refreshSizeSelect(prevOpts);
         }
 
         function initBuilder() {
-            renderBtns('build-shape',     DATA.shape,     'shape',     'desc-shape');
-            renderBtns('build-relief',    DATA.relief,    'relief',    'desc-relief');
-            renderBtns('build-tolerance', DATA.tolerance, 'tolerance', 'desc-tolerance');
-            renderBtns('build-hole',      DATA.hole,      'hole',      'desc-hole');
-            renderBtns('build-edge',      DATA.edge,      'edge',      'desc-edge');
-            renderBtns('build-hand',      DATA.hand,      'hand',      'desc-hand');
+            renderChoice('build-shape',     DATA.shape,     'shape',     'desc-shape', onShapeChange);
+            renderChoice('build-relief',    DATA.relief,    'relief',    'desc-relief');
+            renderChoice('build-tolerance', DATA.tolerance, 'tolerance', 'desc-tolerance');
+            renderChoice('build-hole',      DATA.hole,      'hole');
+            renderChoice('build-edge',      DATA.edge,      'edge');
+            renderChoice('build-hand',      DATA.hand,      'hand');
 
-            const populateSelect = (id, obj, key) => {
-                const s = document.getElementById(id);
-                s.innerHTML = '';
-                Object.entries(obj).forEach(([k, v]) => {
-                    const opt = document.createElement('option');
-                    opt.value = k;
-                    opt.text = v === 0 ? `${k}: Sharp` : `${k}: ${v.toFixed(2)} mm`;
-                    s.appendChild(opt);
-                });
-                s.value = buildState[key];
-            };
-            populateSelect('build-size',      DATA.size.iso,      'size');
-            populateSelect('build-thickness', DATA.thickness.iso, 'thick');
-            populateSelect('build-radius',    DATA.radius.iso,    'rad');
+            fillSelect('build-thickness', THICKNESS.map(t => ({ code: t.iso, text: `${t.mm.toFixed(2)} mm · ${inchStr(t.inch)} — ${t.iso}` })), buildState.thick);
+            fillSelect('build-radius', radiusOptions(buildState.shape), buildState.rad);
+            refreshSizeSelect();
             updateBuilderUI();
         }
 
         function updateState(key, val) {
+            const prevOpts = sizeOptions(buildState.shape, buildState.rad);
             buildState[key] = val;
+            if (key === 'rad' && buildState.shape === 'R') refreshSizeSelect(prevOpts);
             updateBuilderUI();
         }
 
