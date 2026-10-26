@@ -308,6 +308,7 @@ function splitTailO(tail) {
 function oIso(code) {
   const m = /^([A-Z])([A-Z])([A-Z])([A-Z])(\d{2})(\d{2}|T\d)(\d{2}|M0)([A-Z]*)$/.exec(code); if (!m) return null;
   const [, sh, , , , size, thick, rad, tail] = m; if (rad === 'M0' && sh !== 'R') return null;
+  if (+size === 0 || thick === '00') return null;   // a zero size or thickness is not an insert
   const dims = [];
   if (sh === 'R' && rad === 'M0') dims.push(['Diameter', `${(+size).toFixed(2)} mm`]);
   else if (SZ[sh]) { const i = SZ[sh].indexOf(size); dims.push([sh === 'R' ? 'Diameter' : 'Size (I.C.)', i < 0 ? `Non-standard code ${size} (≈ ${+size} mm edge)` : `${IC[i].mm.toFixed(2)} mm · ${inchTbl(IC[i].inch)}`]); }
@@ -871,6 +872,7 @@ async function loop() {
 }
 async function start(o = {}) {
   if (T.running) return;
+  const pop = document.getElementById('alphaPop'), popGo = document.getElementById('alphaPopGo'); if (pop && popGo) { popGo.click(); await sleep(500); }   // the alpha testing popup would cover every control and fill the report with false warnings
   T.seed = o.seed != null ? +o.seed : (T.seed || 1); rng = mulberry32(T.seed >>> 0); T.rate = o.rate || T.rate || 10; T.max = o.max != null ? +o.max : T.max; T.duration = o.duration || 0; T.turbo = !!o.turbo; T.quiet = false;
   if (T.n === 0 || o.reset) resetStats(); T.running = true; T.paused = false; T.tEnd = 0; T.tRun = now(); T.t0 = T.t0 || Date.now(); T.endReason = '';
   storeSnap(); uiSnap();
